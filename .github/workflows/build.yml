@@ -1,0 +1,101 @@
+name: Build Kivy App
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+      
+      - name: Install dependencies
+        run: uv sync
+      
+      - name: Install PyInstaller
+        run: uv pip install pyinstaller
+      
+      - name: Build Windows executable
+        run: |
+          uv run pyinstaller --name="PongApp" --windowed --onefile --add-data "pong.kv;." main.py
+      
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PongApp-Windows
+          path: dist/PongApp.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-dev python3-pip libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
+      
+      - name: Install dependencies
+        run: uv sync
+      
+      - name: Install PyInstaller
+        run: uv pip install pyinstaller
+      
+      - name: Build Linux executable
+        run: |
+          uv run pyinstaller --name="PongApp" --onefile --add-data "pong.kv:." main.py
+      
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PongApp-Linux
+          path: dist/PongApp
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+      
+      - name: Install dependencies
+        run: uv sync
+      
+      - name: Install PyInstaller
+        run: uv pip install pyinstaller
+      
+      - name: Build macOS executable
+        run: |
+          uv run pyinstaller --name="PongApp" --windowed --onefile --add-data "pong.kv:." main.py
+      
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PongApp-macOS
+          path: dist/PongApp
+
