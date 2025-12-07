@@ -2,8 +2,15 @@ name: Build Kivy App
 
 on:
   push:
+    branches:
+      - main
+      - master
     tags:
       - 'v*'
+  pull_request:
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
 jobs:
@@ -27,6 +34,8 @@ jobs:
         run: uv pip install pyinstaller
       
       - name: Build Windows executable
+        env:
+          KIVY_GL_BACKEND: angle_sdl2
         run: |
           uv run pyinstaller --name="PongApp" --windowed --onefile --add-data "pong.kv;." main.py
       
